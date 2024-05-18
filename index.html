@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/round-slider@1.6.1/dist/roundslider.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/round-slider@1.6.1/dist/roundslider.min.js" ></script>
+    <title>Real App 2024 Light Show Metronome real no fake</title>
+</head>
+<body>
+    <h1>METRONOME</h1>
+    <div id="slider"></div>    
+    <p id="bpm">BPM</p>
+</body>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+
+:root {
+    --bpm: 60;
+    --hue: calc((180 - var(--bpm) + 33) * 0.8deg);
+    --color: hsl(var(--hue) 100% 65%);
+    --color-dark: hsl(var(--hue) 100% 40%);
+    --color-glow: hsl(var(--hue) 100% 80%);
+    --on: 0;
+}
+
+* {
+    font-family: "Major Mono Display", monospace !important;
+}
+
+body {
+    background-color: #111;
+}
+
+#slider .rs-range-color  {
+    background-color: var(--color);
+}
+
+#slider .rs-path-color  {
+    background-color: #382d5f;
+    border-radius: 0;
+}
+
+#slider .rs-seperator  {
+    display: none;
+}
+
+#slider .rs-handle  {
+    background-color: var(--color);
+}
+
+#slider .rs-border  {
+    border: 4px solid #382d5f;
+}
+
+#slider .rs-bg-color {
+    background-color: #111;
+}
+
+#slider .rs-tooltip-text {
+    font-size: 90px;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    margin: 0 !important;
+    padding: 0;
+    color: var(--color);
+    text-shadow : 0 0 calc(var(--on) * 5px ) var(--color-glow),
+                  0 0 calc(var(--on) * 10px) var(--color),
+                  0 0 calc(var(--on) * 20px) var(--color-dark),
+                  0 0 calc(var(--on) * 40px) var(--color-dark);
+    transition: all 100ms ease-out;
+}
+
+body {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+h1 {
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    font-size: 2rem;
+}
+
+#bpm {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 99;
+    font-size: 1rem;
+}
+</style>
+<script defer>
+    const slider = $("#slider").roundSlider({
+        radius: 160,
+        width: 20,
+        handleSize: "+10",
+        sliderType: "min-range",
+        value: "60",
+        min: 40,
+        max: 218
+    });
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    var bpm = 60;
+    var is_on = 0;
+    var interval = setInterval(() => {
+        is_on = !is_on;
+        document.documentElement.style.setProperty("--on", Number(is_on));
+    }, 60000 / bpm);
+    var counter = 1;
+    console.log(interval);
+    slider.on("update", ({ value }) => {
+        bpm = value;
+        document.documentElement.style.setProperty("--bpm", bpm);
+        clearInterval(counter);
+        var interval = setInterval(() => {
+            is_on = !is_on;
+            document.documentElement.style.setProperty("--on", Number(is_on));
+        }, 60000 / bpm);
+        counter++;
+        sendSliderValue(value);
+    });
+
+    function sendSliderValue(value) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/sld:" + value, true);
+        xhr.send();
+    }
+
+</script>
+</html>
