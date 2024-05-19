@@ -66,11 +66,20 @@ body {
     margin: 0 !important;
     padding: 0;
     color: var(--color);
-    text-shadow : 0 0 calc(var(--on) * 5px ) var(--color-glow),
-                  0 0 calc(var(--on) * 10px) var(--color),
-                  0 0 calc(var(--on) * 20px) var(--color-dark),
-                  0 0 calc(var(--on) * 40px) var(--color-dark);
-    transition: all 100ms ease-out;
+    
+    animation: pulse calc(1 / var(--bpm) * 60s) ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from, to {
+        text-shadow: none;
+    }
+    50% {
+        text-shadow: 0 0 5px  var(--color-glow),
+                  0 0 10px var(--color),
+                  0 0 20px var(--color-dark),
+                  0 0 40px var(--color-dark);
+    }
 }
 
 body {
@@ -110,22 +119,9 @@ h1 {
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
     var bpm = 60;
-    var is_on = 0;
-    var interval = setInterval(() => {
-        is_on = !is_on;
-        document.documentElement.style.setProperty("--on", Number(is_on));
-    }, 60000 / bpm);
-    var counter = 1;
-    console.log(interval);
     slider.on("update", ({ value }) => {
         bpm = value;
         document.documentElement.style.setProperty("--bpm", bpm);
-        clearInterval(counter);
-        var interval = setInterval(() => {
-            is_on = !is_on;
-            document.documentElement.style.setProperty("--on", Number(is_on));
-        }, 60000 / bpm);
-        counter++;
         sendSliderValue(value);
     });
 
